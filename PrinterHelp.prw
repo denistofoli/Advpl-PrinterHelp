@@ -65,14 +65,14 @@ Função auxiliar para centralização horizontal de texto
 @param nVPxl, numeric, Posição vertical
 @param cTexto, character, Texto a ser centralizado e impresso
 @param oFont, object, Objeto com a fonte TTF para calculo de dimensões
-@param nHIni, numeric, Inicio da posição horizontal para centralização
-@param nHFim, numeric, Fim da posição horizontal para centralização
+@param nHIni, numeric, Inicio da posição horizontal para centralização, se vazio assumirá a posição atual.
+@param nHFim, numeric, Fim da posição horizontal para centralização, se vazio, assumira a largura total da pagina
 @param COR, character, Cor do texto a ser impresso
 /*/
 Method Center(nVPxl,cTexto,oFont,nHIni,nHFim,COR) Class PrinterHelp
 	Local   nLarg := ::oPrn:GetTextWidth(cTexto,oFont)
 	Local   nHPos := 0
-	Default nHIni := ::GetVPos()
+	Default nHIni := ::GetHPos()
 	Default nHFim := Iif(::oPrn:GetOrientation()=1,2200,3200)
 	Default COR   := nil
 
@@ -96,8 +96,8 @@ Função auxiliar para centralização vertital de texto
 @param nHPxl, numeric, Posição horizontal
 @param cTexto, character, Texto a ser centralizado e impresso
 @param oFont, object, Objeto com a fonte TTF para calculo de dimensões
-@param nVIni, numeric, Inicio da posição vertial para centralização
-@param nVFim, numeric, Fim da posição vertical para centralização
+@param nVIni, numeric, Inicio da posição vertial para centralização, se vazio assumirá a posição atual.
+@param nVFim, numeric, Fim da posição vertical para centralização, se vazio assumirá a altura total da pagina
 @param COR, character, Cor do texto a ser impresso
 /*/
 Method Middle(nHPxl,cTexto,oFont,nVIni,nVFim,COR) Class PrinterHelp
@@ -157,6 +157,22 @@ Method BreakLine(cTexto,nLarg,oFont) Class PrinterHelp
 	Endif
 Return aDados
 
+
+/*/{Protheus.doc} PrinterHelp::Say
+Encapsulamento do Method Say para controle de posicionamento
+
+@type method
+@version 1.0
+
+@author Denis Tofoli (denis_tofoli@msn.com)
+@since 13/06/2022
+
+@param nVPxl, numeric, Posição vertical em Pixel, se vazio assumira a posição atual
+@param nHPxl, numeric, Posição Horizontal em Pixel, se vazio assumirá a posição atual
+@param cTexto, character, Texto a ser exibido
+@param oFont, object, Fonte TTF a ser utilizada na impressão
+@param COR, character, Cor do Texto
+/*/
 Method Say(nVPxl, nHPxl, cTexto, oFont, COR) Class PrinterHelp
 	Default nVPxl := ::GetVPos()
 	Default nHPxl := ::GetHPos()
@@ -165,26 +181,90 @@ Method Say(nVPxl, nHPxl, cTexto, oFont, COR) Class PrinterHelp
 	::NewPos(nVPxl, nHPxl, cTexto, oFont)
 Return nil
 
+
+/*/{Protheus.doc} PrinterHelp::GetVPos
+Retorna a atual posição vertical
+
+@type method
+@version 1.0
+
+@author Denis Tofoli (denis_tofoli@msn.com)
+@since 13/06/2022
+
+@return numeric, Posição vertical em Pixels
+/*/
 Method GetVPos() Class PrinterHelp
 Return ::vPos
 
+
+/*/{Protheus.doc} PrinterHelp::GetHPos
+Retorna a atual posição horizontal
+
+@type method
+@version 1.0
+
+@author Denis Tofoli (denis_tofoli@msn.com)
+@since 13/06/2022
+
+@return numeric, Posição horizontal atual
+/*/
 Method GetHPos() Class PrinterHelp
 Return ::hPos
 
+
+/*/{Protheus.doc} PrinterHelp::SetVPos
+Seta nova posição Vertical
+
+@type method
+@version 1.0
+
+@author Denis Tofoli (denis_tofoli@msn.com)
+@since 13/06/2022
+
+@param nVPxl, numeric, Nova posição vertical em Pixels
+/*/
 Method SetVPos(nVPxl) Class PrinterHelp
 	::vPos := nVPxl
 Return nil
 
+
+/*/{Protheus.doc} PrinterHelp::SetHPos
+Seta nova posição horizontal
+
+@type method
+@version 1.0
+
+@author Denis Tofoli (denis_tofoli@msn.com)
+@since 13/06/2022
+
+@param nHPxl, numeric, Nova posição horizontal em Pixels
+/*/
 Method SetHPos(nHPxl) Class PrinterHelp
 	::hPos := nHPxl
 Return nil
 
 
+/*/{Protheus.doc} PrinterHelp::NewPos
+Calula novas posições horizontais e verticais, de acordo
+com texto exibido.
+
+@type method
+@version 1.0
+
+@author Denis Tofoli (denis_tofoli@msn.com)
+@since 13/06/2022
+
+@param nVPxl, numeric, Posição vertical em Pixels
+@param nHPxl, numeric, Posição horizontal em Pixels
+@param cTexto, character, Texto exibido
+@param oFont, object, Fonte TTF utilizada na exibição do texto
+@param nVForce, numeric, Força que esse valor seja gravado na posição vertical
+@param nHForce, numeric, Força que esse valor seja gravado na posição horizontal
+/*/
 Method NewPos(nVPxl, nHPxl, cTexto, oFont, nVForce, nHForce) Class PrinterHelp
 	Default nVForce := nVPxl + ::oPrn:GetTextHeight(cTexto,oFont)
 	Default nHForce := nHPxl + ::oPrn:GetTextWidth(cTexto,oFont)
 
-	::vPos := nVForce + PADDING
-	::hPos := nHForce + PADDING
+	::SetVPos(nVForce + PADDING)
+	::SetHPos(nHForce + PADDING)
 Return nil
-
