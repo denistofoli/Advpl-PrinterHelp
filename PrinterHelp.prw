@@ -1,4 +1,9 @@
 #Include "Totvs.ch"
+
+#Define PADDING 2
+#Define PG_H_INI 0000
+#Define PG_H_FIM 2300
+
 /*/{Protheus.doc} PrinterHelp
 Classe utilitária para ajudar na construção de 
 relatório gráficos com FwMsPrinter.
@@ -13,11 +18,20 @@ relatório gráficos com FwMsPrinter.
 /*/
 Class PrinterHelp
     Data oPrn
+	Data vPos
+	Data hPos
 
     Method New()
     Method Center()
     Method Middle()
 	Method BreakLine()
+	Method Say()
+
+	Method NewPos()
+	Method SetVPos()
+	Method SetHPos()
+	Method GetVPos()
+	Method GetHPos()
 EndClass
 
 
@@ -34,6 +48,8 @@ Construtor da class
 /*/
 Method New(oParPrn) Class PrinterHelp
     ::oPrn := oParPrn
+	::vPos := 0
+	::hPos := 0
 Return nil
 
 
@@ -54,19 +70,17 @@ Função auxiliar para centralização horizontal de texto
 @param COR, character, Cor do texto a ser impresso
 /*/
 Method Center(nVPxl,cTexto,oFont,nHIni,nHFim,COR) Class PrinterHelp
-	Local   nLarg := 0
+	Local   nLarg := ::oPrn:GetTextWidth(cTexto,oFont)
 	Local   nHPos := 0
-	Default nHIni := 0
+	Default nHIni := ::GetVPos()
 	Default nHFim := Iif(::oPrn:GetOrientation()=1,2200,3200)
 	Default COR   := nil
-
-	// Largura do Texto
-	nLarg := ::oPrn:GetTextWidth(cTexto,oFont)
 
 	// Calcula posição em pixel para a exibição
 	nHPos := nHIni+Int(((nHFim-nHIni)-nLarg)/2)
 
-	::oPrn:Say(nVPxl,nHPos,cTexto,oFont,,COR)
+	::Say(nVPxl,nHPos,cTexto,oFont,COR)
+	::NewPos(nVPxl, nHIni, cTexto, oFont, ,nHFim)
 Return nil
 
 
@@ -87,20 +101,18 @@ Função auxiliar para centralização vertital de texto
 @param COR, character, Cor do texto a ser impresso
 /*/
 Method Middle(nHPxl,cTexto,oFont,nVIni,nVFim,COR) Class PrinterHelp
-	Local   nAlt  := 0
+	Local   nAlt  := ::oPrn:GetTextHeight(cTexto,oFont)
 	Local   nVPos := 0
-	Default nVIni := 0
+	Default nVIni := ::GetVPos()
 	Default nVFim := Iif(::oPrn:GetOrientation()=1,3200,2200)
 	Default COR   := nil
-
-	// Largura do Texto
-	nAlt := ::oPrn:GetTextHeight(cTexto,oFont)
 
 	// Calcula posição em pixel para a exibição
 	nVPos := nVIni+Int(((nVFim-nVIni)-nAlt)/2)
 
-	::oPrn:Say(nVPos,nHPxl,cTexto,oFont,,COR)
-Return nil
+	::Say(nVPos,nHPxl,cTexto,oFont,COR)
+	::NewPos(nVPxl, nHIni, cTexto, oFont, nVFim)
+Return aPos
 
 
 /*/{Protheus.doc} PrinterHelp::BreakLine
@@ -123,6 +135,7 @@ Method BreakLine(cTexto,nLarg,oFont) Class PrinterHelp
 	Local aDados    := {}
 	Local nAlt      := ::oPrn:GetTextHeight(cTexto,oFont)
 	Local k         := 0
+	Default nLarg   := PG_H_FIM
 
 	If Len(aPalavras) >= 1
 		aDados := {{aPalavras[1]},0}
@@ -142,6 +155,36 @@ Method BreakLine(cTexto,nLarg,oFont) Class PrinterHelp
 	If aDados[2] < 50
 		aDados[2] := 50
 	Endif
-
-	// TODO Imprimir ao invés de devolver os dados
 Return aDados
+
+Method Say(nVPxl, nHPxl, cTexto, oFont, COR) Class PrinterHelp
+	Default nVPxl := ::GetVPos()
+	Default nHPxl := ::GetHPos()
+
+	::oPrn:Say(nVPxl,nHPxl,cTexto,oFont,,COR)
+	::NewPos(nVPxl, nHPxl, cTexto, oFont)
+Return nil
+
+Method GetVPos() Class PrinterHelp
+Return ::vPos
+
+Method GetHPos() Class PrinterHelp
+Return ::hPos
+
+Method SetVPos(nVPxl) Class PrinterHelp
+	::vPos := nVPxl
+Return nil
+
+Method SetHPos(nHPxl) Class PrinterHelp
+	::hPos := nHPxl
+Return nil
+
+
+Method NewPos(nVPxl, nHPxl, cTexto, oFont, nVForce, nHForce) Class PrinterHelp
+	Default nVForce := nVPxl + ::oPrn:GetTextHeight(cTexto,oFont)
+	Default nHForce := nHPxl + ::oPrn:GetTextWidth(cTexto,oFont)
+
+	::vPos := nVForce + PADDING
+	::hPos := nHForce + PADDING
+Return nil
+
