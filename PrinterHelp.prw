@@ -24,6 +24,7 @@ Class PrinterHelp
     Method New()
     Method Center()
     Method Middle()
+	Method Right()
 	Method BreakLine()
 	Method Say()
 
@@ -268,3 +269,31 @@ Method NewPos(nVPxl, nHPxl, cTexto, oFont, nVForce, nHForce) Class PrinterHelp
 	::SetVPos(nVForce + PADDING)
 	::SetHPos(nHForce + PADDING)
 Return nil
+
+
+/*/{Protheus.doc} PrinterHelp::Right
+Exibe texto alinhado a direita
+
+@type method
+@version 1.0
+
+@author Denis Tofoli (denis_tofoli@msn.com)
+@since 13/06/2022
+
+@param nVPxl, numeric, Posição vertical em Pixel, se vazio assumira a posição atual
+@param nHFim, numeric, Posição Horizontal em Pixel, se vazio assumirá a posição atual
+@param cTexto, character, Texto a ser exibido
+@param oFont, object, Fonte TTF utilizada para exibição
+/*/
+Method Right(nVPxl,nHFim,cTexto,oFont) Class PrinterHelp
+	Local   nLarg := ::oPrn:GetTextWidth(cTexto,oFont)
+	Local   nHPos := 0
+	Default nVPxl := ::GetVPos()
+	Default nHFim := PG_H_FIM
+
+	// Calcula posição em pixel para a exibição
+	nHPos := nHFim-nLarg
+
+	::Say(nVPxl,nHPos,cTexto,oFont)
+Return nil
+
